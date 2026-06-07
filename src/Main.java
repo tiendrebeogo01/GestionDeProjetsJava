@@ -5,23 +5,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.util.ArrayList;
 
 public class Main extends Application {
-    private Utilisateur user1 = new Utilisateur("Eric", "eric@example.com", "Chef de projet");
-    private ObservableList<Projet> projets;
+    private Utilisateur user = new Utilisateur("Eric", "erictiendrebeogo01611962@gmail.com");
+    private ObservableList<Projet> projets = FXCollections.observableArrayList();
     private ObservableList<Tache> taches = FXCollections.observableArrayList();
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Application de Gestion de Projets");
+        primaryStage.setTitle("Gestion de Projets");
 
-        // Charger projets et tâches depuis fichier
-        ArrayList<Projet> projetsCharges = DataManager.charger();
-        projets = FXCollections.observableArrayList(projetsCharges);
-        user1.getProjets().addAll(projetsCharges);
-
-        // TableView Projets
+        // Table Projets
         TableView<Projet> tableProjets = new TableView<>(projets);
         TableColumn<Projet, String> colNom = new TableColumn<>("Nom");
         colNom.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNom()));
@@ -29,7 +23,7 @@ public class Main extends Application {
         colDesc.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
         tableProjets.getColumns().addAll(colNom, colDesc);
 
-        // TableView Tâches
+        // Table Tâches
         TableView<Tache> tableTaches = new TableView<>(taches);
         TableColumn<Tache, String> colTitre = new TableColumn<>("Titre");
         colTitre.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitre()));
@@ -43,6 +37,11 @@ public class Main extends Application {
         tableProjets.getSelectionModel().selectedItemProperty().addListener((obs, oldProj, newProj) -> {
             if (newProj != null) {
                 taches.setAll(newProj.getTaches());
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Progression du projet");
+                alert.setHeaderText(newProj.getNom());
+                alert.setContentText("Avancement : " + newProj.progression() + "%");
+                alert.showAndWait();
             }
         });
 
@@ -53,6 +52,13 @@ public class Main extends Application {
         Scene scene = new Scene(layout, 900, 700);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // Exemple de données
+        Projet p1 = new Projet("Projet Java", "Application de gestion");
+        p1.ajouterTache(new Tache("Coder interface", "Faire l'UI", "En cours", "Haute"));
+        p1.ajouterTache(new Tache("Tests", "Vérifier les fonctionnalités", "Non commencé", "Moyenne"));
+        user.ajouterProjet(p1);
+        projets.add(p1);
     }
 
     public static void main(String[] args) { launch(args); }
